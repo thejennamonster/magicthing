@@ -25,115 +25,30 @@ require __DIR__ . '/vendor/autoload.php';
 
 use \mtgsdk\Card;
 
-$card = Card::find(382217);
+$card = Card::find(439836);
 #$card = Card::where(['name' => 'nis'])->all();
 
+// spit out relevant information from datadump
 
-#var_export($card);
-
-
-//result now contains the output from card//
-
-$result=print_r($card, true);
-
-
-//vomit card output that lives in result into a file//
-
-file_put_contents('test.txt', print_r($result, true));
-
-//open/read the file//
-
-$text_file=fopen('test.txt', 'r');
-
-//while going through each line, check if the line starts with name and then print that info to another file. stop after first hit//
-
-while($line=fgets($text_file)) {
-    if (strpos($line, '[name]')){
-        $output = print_r($line, true);
-        file_put_contents('output.txt', print_r($output, true));
-        break;
-
-    }
-}
-
-//does same as above, but appends the file with new info//
-
-while($line=fgets($text_file)) {
-    if (strpos($line, '[manaCost]')) {
-        $output = print_r($line, true);
-        file_put_contents('output.txt', print_r($output, true), FILE_APPEND);
-        break;
-    }
-
-}
-
-while($line=fgets($text_file)) {
-    if (strpos($line, '[type]')) {
-        $output = print_r($line, true);
-        file_put_contents('output.txt', print_r($output, true), FILE_APPEND);
-        break;
-    }
-
-}
-
-while($line=fgets($text_file)) {
-    if (strpos($line, '[rarity]')) {
-        $output = print_r($line, true);
-        file_put_contents('output.txt', print_r($output, true), FILE_APPEND);
-        break;
-    }
-
-}
-while($line=fgets($text_file)) {
-    if (strpos($line, '[setName]')) {
-        $output = print_r($line, true);
-        file_put_contents('output.txt', print_r($output, true), FILE_APPEND);
-         break;
-    }
-
-}
-while($line=fgets($text_file)) {
-    if (strpos($line, '[text]')) {
-        $output = print_r($line, true);
-       file_put_contents('output.txt', print_r($output, true), FILE_APPEND);
-        break;
-    }
-
-}
-//write info from file to database//
+$multi= $card->multiverseid . "\n";
+$name = $card->name . "\n";
+$rarity = $card->rarity . "\n";
+$colors = implode(",", $card->colors) . "\n";
+$mana = $card->manaCost . "\n";
+$cmc = $card->cmc . "\n";
+$type = $card->type . "\n";
+$power = $card->power . "\n";
+$toughness = $card->toughness ."\n";
+$version= $card->setName . "\n";
+$text = $card->text . "\n";
+$image = $card->imageUrl ."\n";
+#die();
 
 
-$database_info=fopen('output.txt', 'r');
+//Write to database
 
-while($line=fgets($database_info)) {
-    if (strpos($line, '[name]')) {
-        $output1 = print_r($line, true);
-        $subout = substr($output1, 21);
+        $sql = "INSERT INTO cards (multiverseid, name, rarity, colors, mana, cmc, type, power, toughness, version, text, image) VALUES ('$multi','$name','$rarity','$colors','$mana','$cmc','$type','$power','$toughness','$version','$text','$image')";
 
-    }
-    if (strpos($line, '[manaCost]')) {
-        $output2 = print_r($line, true);
-        $subout2 = substr($output2, 25);
-    }
-    if (strpos($line, '[type]')) {
-        $output3 = print_r($line, true);
-        $subout3 = substr($output3, 21);
-    }
-    if (strpos($line, '[rarity]')) {
-        $output4 = print_r($line, true);
-        $subout4 = substr($output4, 24);
-    }
-    if (strpos($line, '[setName]')) {
-        $output5 = print_r($line, true);
-        $subout5 = substr($output5, 25);
-    }
-
-    if (strpos($line, '[text]')) {
-        $output6 = print_r($line, true);
-        $subout6 = substr($output6, 21);
-    }
-        $sql = "INSERT INTO cards (name, mana, type, rarity, version, text) VALUES ('$subout','$subout2','$subout3','$subout4','$subout5','$subout6')";
-}
 
          if ($mysqli->query($sql) === TRUE) {
                 echo "New record created successfully";
