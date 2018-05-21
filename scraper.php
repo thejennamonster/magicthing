@@ -47,14 +47,14 @@ $image = $card->imageUrl ."\n";
 
 //Write to database
 
-        $sql = "INSERT INTO cards (multiverseid, name, rarity, colors, mana, cmc, type, power, toughness, version, text, image) VALUES ('$multi','$name','$rarity','$colors','$mana','$cmc','$type','$power','$toughness','$version','$text','$image')";
+$sql = "INSERT INTO cards (multiverseid, name, rarity, colors, mana, cmc, type, power, toughness, version, text, image) VALUES ('$multi','$name','$rarity','$colors','$mana','$cmc','$type','$power','$toughness','$version','$text','$image')";
 
 
-         if ($mysqli->query($sql) === TRUE) {
-                echo "New record created successfully";
-            } else {
-                echo "Error: " . $sql . "<br>" . $mysqli->error;
-            }
+if ($mysqli->query($sql) === TRUE) {
+    echo "New record created successfully";
+} else {
+    echo "Error: " . $sql . "<br>" . $mysqli->error;
+}
 
 
 
