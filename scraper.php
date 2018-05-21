@@ -21,42 +21,98 @@ if (mysqli_connect_errno()){
 
 $mysqli->select_db("magiccar_carddb");
 
+
 require __DIR__ . '/vendor/autoload.php';
 
 use \mtgsdk\Card;
 
-$card = Card::find(439836);
-#$card = Card::where(['name' => 'nis'])->all();
 
-// spit out relevant information from datadump
-
-$multi= $card->multiverseid . "\n";
-$name = $card->name . "\n";
-$rarity = $card->rarity . "\n";
-$colors = implode(",", $card->colors) . "\n";
-$mana = $card->manaCost . "\n";
-$cmc = $card->cmc . "\n";
-$type = $card->type . "\n";
-$power = $card->power . "\n";
-$toughness = $card->toughness ."\n";
-$version= $card->setName . "\n";
-$text = $card->text . "\n";
-$image = $card->imageUrl ."\n";
-#die();
+$cards = Card::where(['name' => 'Nissa'])->all();
 
 
-//Write to database
 
-$sql = "INSERT INTO cards (multiverseid, name, rarity, colors, mana, cmc, type, power, toughness, version, text, image) VALUES ('$multi','$name','$rarity','$colors','$mana','$cmc','$type','$power','$toughness','$version','$text','$image')";
+// prepare insert
 
 
-if ($mysqli->query($sql) === TRUE) {
-    echo "New record created successfully";
-} else {
-    echo "Error: " . $sql . "<br>" . $mysqli->error;
+$stmt = $mysqli->prepare("INSERT INTO cards (multiverseid, name, rarity, colors, mana, cmc, type, power, toughness, version, text, image) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE multiverseid = VALUES(multiverseid)");
+
+// check to see if properties are set and, if so, make them a variable
+echo count($cards)."\n";
+foreach ($cards as $info) {
+    $multiverseid = '';
+    $name = '';
+    $rarity = '';
+    $manacost = '';
+    $colors = '';
+    $cmc = '';
+    $type = '';
+    $power = '';
+    $toughness = '';
+    $setname = '';
+    $text = '';
+    $image = '';
+
+    if (isset($info->multiverseid)) {
+        $multiverseid = $info->multiverseid;
+    }
+
+    if (isset($info->name)) {
+        $name = $info->name;
+    }
+
+    if (isset($info->rarity)) {
+        $rarity=$info->rarity;
+    }
+
+    if (isset($info->colors)) {
+        $colors = implode(",", $info->colors);
+    }
+
+    if (isset($info->manaCost)) {
+        $manacost=$info->manaCost;
+    }
+
+    if (isset($info->cmc)) {
+        $cmc=$info->cmc;
+    }
+
+    if (isset($info->type)) {
+        $type = $info->type;
+    }
+
+    if (isset($info->power)) {
+        $power=$info->power;
+    }
+
+    if (isset($info->toughness)) {
+        $toughness = $info->toughness;
+    }
+
+    if (isset($info->setName)) {
+        $setname=$info->setName;
+    }
+
+    if (isset($info->text)) {
+        $text=$info->text;
+    }
+
+    if (isset($info->imageUrl)) {
+        $image=$info->imageUrl;
+    }
+
+    //Write to database
+
+    $stmt->bind_param("ssssssssssss", $multiverseid,$name, $rarity, $colors, $manacost, $cmc, $type, $power, $toughness, $setname, $text, $image);
+    $stmt->execute();
+    if ($stmt->errno){
+        echo "error: {$stmt->error}\n";
+
+    }
 }
 
+//close the statement
 
+$stmt->close();
 
 
 
